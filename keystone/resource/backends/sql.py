@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_db import api as oslo_db_api
 from oslo_log import log
 
 from keystone.common import driver_hints
@@ -181,6 +182,7 @@ class Resource(base.ResourceDriverBase):
             return project_ref.to_dict()
 
     @sql.handle_conflicts(conflict_type='project')
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def update_project(self, project_id, project):
         update_project = self._encode_domain_id(project)
         with sql.session_for_write() as session:
@@ -199,6 +201,7 @@ class Resource(base.ResourceDriverBase):
             return project_ref.to_dict(include_extra_dict=True)
 
     @sql.handle_conflicts(conflict_type='project')
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def delete_project(self, project_id):
         with sql.session_for_write() as session:
             project_ref = self._get_project(session, project_id)

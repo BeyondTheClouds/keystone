@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_db import api as oslo_db_api
 from oslo_utils import timeutils
 from six.moves import range
 
@@ -164,6 +165,7 @@ class Trust(base.TrustDriverBase):
             return [trust_ref.to_dict() for trust_ref in trusts]
 
     @sql.handle_conflicts(conflict_type='trust')
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def delete_trust(self, trust_id):
         with sql.session_for_write() as session:
             trust_ref = session.query(TrustModel).get(trust_id)

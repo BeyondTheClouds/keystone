@@ -15,6 +15,7 @@
 
 import itertools
 
+from oslo_db import api as oslo_db_api
 import sqlalchemy
 from sqlalchemy.sql import true
 
@@ -196,6 +197,7 @@ class Catalog(base.CatalogDriverBase):
         with sql.session_for_read() as session:
             return self._get_service(session, service_id).to_dict()
 
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def delete_service(self, service_id):
         with sql.session_for_write() as session:
             ref = self._get_service(session, service_id)

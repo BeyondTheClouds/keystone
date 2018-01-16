@@ -55,6 +55,7 @@ class Identity(base.IdentityDriverBase):
         return password_hashing.check_password(password, user_ref.password)
 
     # Identity interface
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def authenticate(self, user_id, password):
         with sql.session_for_read() as session:
             try:

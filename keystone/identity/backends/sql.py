@@ -126,6 +126,7 @@ class Identity(base.IdentityDriverBase):
     # user crud
 
     @sql.handle_conflicts(conflict_type='user')
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def create_user(self, user_id, user):
         with sql.session_for_write() as session:
             user_ref = model.User.from_dict(user)
@@ -185,6 +186,7 @@ class Identity(base.IdentityDriverBase):
             raise exception.UserNotFound(user_id=user_id)
         return user_ref
 
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def get_user(self, user_id):
         with sql.session_for_read() as session:
             return base.filter_user(

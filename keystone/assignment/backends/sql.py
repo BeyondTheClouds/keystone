@@ -17,6 +17,7 @@ from keystone.common import sql
 from keystone import exception
 from keystone.i18n import _
 
+from oslo_db import api as oslo_db_api
 
 class AssignmentType(object):
     USER_PROJECT = 'UserProject'
@@ -98,6 +99,7 @@ class Assignment(base.AssignmentDriverBase):
                                                        actor_id=actor_id,
                                                        target_id=target_id)
 
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def delete_grant(self, role_id, user_id=None, group_id=None,
                      domain_id=None, project_id=None,
                      inherited_to_projects=False):
@@ -255,6 +257,7 @@ class Assignment(base.AssignmentDriverBase):
             )
             q.delete(False)
 
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def delete_role_assignments(self, role_id):
         with sql.session_for_write() as session:
             q = session.query(RoleAssignment)

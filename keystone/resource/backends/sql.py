@@ -11,6 +11,7 @@
 # under the License.
 
 from oslo_log import log
+from oslo_db import api as oslo_db_api
 
 from keystone.common import driver_hints
 from keystone.common import sql
@@ -173,6 +174,7 @@ class Resource(base.ResourceDriverBase):
 
     # CRUD
     @sql.handle_conflicts(conflict_type='project')
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def create_project(self, project_id, project):
         new_project = self._encode_domain_id(project)
         with sql.session_for_write() as session:
@@ -181,6 +183,7 @@ class Resource(base.ResourceDriverBase):
             return project_ref.to_dict()
 
     @sql.handle_conflicts(conflict_type='project')
+    @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def update_project(self, project_id, project):
         update_project = self._encode_domain_id(project)
         with sql.session_for_write() as session:
